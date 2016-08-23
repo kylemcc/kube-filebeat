@@ -1,4 +1,4 @@
-FROM busybox:1.25.0-glibc
+FROM debian:jessie
 
 # install forego, kube-gen, kubectl, and filebeat
 ENV KUBE_GEN_VERSION 0.1.0
