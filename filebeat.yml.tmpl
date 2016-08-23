@@ -1,0 +1,71 @@
+{{ $pods := whereExist .Pods "ObjectMeta.Annotations.kube_filebeat" -}}
+
+filebeat:
+{{- range $pod := $pods -}}
+{{ if exists (printf "/var/lib/kubelet/pods/%s" $pod.ObjectMeta.UID) }}
+{{ $config := parseJson $pod.ObjectMeta.Annotations.kube_filebeat -}}
+{{ $containerId := trimPrefix (index $pod.Status.ContainerStatuses 0).ContainerID "docker://" -}}
+{{ $res := shell (printf "cat /var/lib/docker/image/aufs/layerdb/mounts/%s/mount-id" $containerId) -}}
+{{ $baseDir := printf "/var/lib/docker/aufs/mnt/%s" $res.Stdout -}}
+  prospectors:
+    -
+      # Paths that should be crawled and fetched. Glob based paths.
+      # To fetch all ".log" files from a specific level of subdirectories
+      # /var/log/*/*.log can be used.
+      # For each file found under this path, a harvester is started.
+      # Make sure not file is defined twice as this can lead to unexpected behaviour.
+      paths:
+{{- range $log := $config.logs }}
+        - {{ pathJoin $baseDir $log }}
+{{- end }}{{/* end range logs */}}
+
+      input_type: log
+
+      # Exclude files. A list of regular expressions to match. Filebeat drops the files that
+      # are matching any regular expression from the list. By default, no files are dropped.
+      exclude_files: [".gz$"]
+
+      # Ignore files which were modified more then the defined timespan in the past.
+      # In case all files on your system must be read you can set this value very large.
+      # Time strings like 2h (2 hours), 5m (5 minutes) can be used.
+      ignore_older: 24h
+
+      # Close older closes the file handler for which were not modified
+      # for longer then close_older
+      # Time strings like 2h (2 hours), 5m (5 minutes) can be used.
+      close_older: 24h
+
+  # Defines how often the spooler is flushed. After idle_timeout the spooler is
+  # Flush even though spool_size is not reached.
+  idle_timeout: 5s
+{{ end }}{{/* end if */}}
+{{- end }}{{/* end range $pods */}}
+############################# Output ##########################################
+
+# Configure what outputs to use when sending the data collected by the beat.
+# Multiple outputs may be used.
+output:
+{{ if mapContains .Env "LOGSTASH_HOSTS" -}}
+  logstash:
+    # The Logstash hosts
+    hosts:
+	{{- range $host := split .Env.LOGSTASH_HOSTS "," }}
+      - {{ $host }}
+	{{- end }}
+
+    # Number of workers per Logstash host.
+    worker: 1
+
+    # Set gzip compression level.
+    compression_level: 3
+
+    # Optional load balance the events between the Logstash hosts
+    loadbalance: true
+
+    # Optional index name. The default index name depends on the each beat.
+    # For Packetbeat, the default is set to packetbeat, for Topbeat
+    # top topbeat and for Filebeat to filebeat.
+    #index: filebeat
+{{ else }}
+  console:
+{{ end -}}
