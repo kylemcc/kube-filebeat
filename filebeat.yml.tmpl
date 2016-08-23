@@ -51,7 +51,7 @@ filebeat:
 # Configure what outputs to use when sending the data collected by the beat.
 # Multiple outputs may be used.
 output:
-{{ if mapContains .Env "LOGSTASH_HOSTS" -}}
+{{- if mapContains .Env "LOGSTASH_HOSTS" }}
   logstash:
     # The Logstash hosts
     hosts:
