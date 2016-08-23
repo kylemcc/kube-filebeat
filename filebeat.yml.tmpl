@@ -6,8 +6,9 @@ filebeat:
 {{ $config := parseJson $pod.ObjectMeta.Annotations.kube_filebeat -}}
 {{ $containerId := trimPrefix (index $pod.Status.ContainerStatuses 0).ContainerID "docker://" -}}
 {{ $res := shell (printf "cat /var/lib/docker/image/aufs/layerdb/mounts/%s/mount-id" $containerId) -}}
-{{ $baseDir := printf "/var/lib/docker/aufs/mnt/%s" $res.Stdout -}}
+{{ $baseDir := printf "/var/lib/docker/aufs/mnt/%s" $res.Stdout }}
   prospectors:
+{{- range $log := $config.logs }}
     -
       # Paths that should be crawled and fetched. Glob based paths.
       # To fetch all ".log" files from a specific level of subdirectories
@@ -15,9 +16,7 @@ filebeat:
       # For each file found under this path, a harvester is started.
       # Make sure not file is defined twice as this can lead to unexpected behaviour.
       paths:
-{{- range $log := $config.logs }}
         - {{ pathJoin $baseDir $log }}
-{{- end }}{{/* end range logs */}}
 
       input_type: log
 
@@ -34,6 +33,13 @@ filebeat:
       # for longer then close_older
       # Time strings like 2h (2 hours), 5m (5 minutes) can be used.
       close_older: 24h
+
+      fields:
+        path: {{ $log }}
+{{- range $key, $value := $config.fields }}
+        {{ $key }}: {{ $value }}
+{{- end }}{{/* end range fields */}}
+{{- end }}{{/* end range logs */}}
 
   # Defines how often the spooler is flushed. After idle_timeout the spooler is
   # Flush even though spool_size is not reached.
