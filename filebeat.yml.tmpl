@@ -41,6 +41,8 @@ filebeat:
 {{- end }}{{/* end range fields */}}
 {{- end }}{{/* end range logs */}}
 
+      fields_under_root: true
+
   # Defines how often the spooler is flushed. After idle_timeout the spooler is
   # Flush even though spool_size is not reached.
   idle_timeout: 5s
