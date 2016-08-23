@@ -2,9 +2,9 @@
 
 filebeat:
 {{- range $pod := $pods -}}
-{{ if exists (printf "/var/lib/kubelet/pods/%s" $pod.ObjectMeta.UID) }}
-{{ $config := parseJson $pod.ObjectMeta.Annotations.kube_filebeat -}}
 {{ $containerId := trimPrefix (index $pod.Status.ContainerStatuses 0).ContainerID "docker://" -}}
+{{ if exists (printf "/var/lib/docker/containers/%s" $containerId) }}
+{{ $config := parseJson $pod.ObjectMeta.Annotations.kube_filebeat -}}
 {{ $res := shell (printf "cat /var/lib/docker/image/aufs/layerdb/mounts/%s/mount-id" $containerId) -}}
 {{ $baseDir := printf "/var/lib/docker/aufs/mnt/%s" $res.Stdout }}
   prospectors:
