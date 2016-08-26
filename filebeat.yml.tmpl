@@ -50,7 +50,7 @@ filebeat:
 {{- end }}
 
       fields:
-        path: {{ $log }}
+        path: {{ $conf.log }}
 {{- range $key, $value := $conf.fields }}
         {{ $key }}: {{ $value }}
 {{- end }}{{/* end range fields */}}
