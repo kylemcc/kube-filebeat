@@ -89,6 +89,7 @@ output:
     # For Packetbeat, the default is set to packetbeat, for Topbeat
     # top topbeat and for Filebeat to filebeat.
     #index: filebeat
-{{ else }}
+{{ end -}}
+{{- if mapContains .Env "CONSOLE_OUTPUT" }}
   console:
 {{ end -}}
