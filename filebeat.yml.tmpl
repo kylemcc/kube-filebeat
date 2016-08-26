@@ -4,11 +4,11 @@ filebeat:
 {{- range $pod := $pods -}}
 {{ $containerId := trimPrefix (index $pod.Status.ContainerStatuses 0).ContainerID "docker://" -}}
 {{ if exists (printf "/var/lib/docker/containers/%s" $containerId) }}
-{{ $config := parseJson $pod.ObjectMeta.Annotations.kube_filebeat -}}
+{{ $configs := parseJson $pod.ObjectMeta.Annotations.kube_filebeat -}}
 {{ $res := shell (printf "cat /var/lib/docker/image/aufs/layerdb/mounts/%s/mount-id" $containerId) -}}
 {{ $baseDir := printf "/var/lib/docker/aufs/mnt/%s" $res.Stdout }}
   prospectors:
-{{- range $log := $config.logs }}
+{{- range $conf := $configs }}
     -
       # Paths that should be crawled and fetched. Glob based paths.
       # To fetch all ".log" files from a specific level of subdirectories
@@ -16,27 +16,34 @@ filebeat:
       # For each file found under this path, a harvester is started.
       # Make sure not file is defined twice as this can lead to unexpected behaviour.
       paths:
-        - {{ pathJoin $baseDir $log }}
+        - {{ pathJoin $baseDir $conf.log }}
 
       input_type: log
 
       # Exclude files. A list of regular expressions to match. Filebeat drops the files that
       # are matching any regular expression from the list. By default, no files are dropped.
+{{- if hasField $conf "exclude_files" }}
+      exclude_files:
+{{- range $f := $conf.exclude_files }}
+        - {{ $f }}
+{{- end }}
+{{ else }}
       exclude_files: [".gz$"]
+{{- end }}
 
       # Ignore files which were modified more then the defined timespan in the past.
       # In case all files on your system must be read you can set this value very large.
       # Time strings like 2h (2 hours), 5m (5 minutes) can be used.
-      ignore_older: 24h
+      ignore_older: {{ $conf.ignore_older }}
 
       # Close older closes the file handler for which were not modified
       # for longer then close_older
       # Time strings like 2h (2 hours), 5m (5 minutes) can be used.
-      close_older: 24h
+      close_older: {{ $conf.close_older }}
 
       fields:
         path: {{ $log }}
-{{- range $key, $value := $config.fields }}
+{{- range $key, $value := $conf.fields }}
         {{ $key }}: {{ $value }}
 {{- end }}{{/* end range fields */}}
 {{- end }}{{/* end range logs */}}
