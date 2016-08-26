@@ -41,6 +41,14 @@ filebeat:
       # Time strings like 2h (2 hours), 5m (5 minutes) can be used.
       close_older: {{ $conf.close_older }}
 
+      # Exclude lines. A list of regular expressions to match. It drops the lines that are
+      # matching any regular expression from the list. The include_lines is called before
+      # exclude_lines. By default, no lines are dropped.
+      exclude_lines:
+{{- range $l := $conf.exclude_lines }}
+        - "{{ $l }}"
+{{- end }}
+
       fields:
         path: {{ $log }}
 {{- range $key, $value := $conf.fields }}
