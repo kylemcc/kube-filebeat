@@ -57,10 +57,11 @@ filebeat:
 
       fields_under_root: true
 
+{{- end }}{{/* end range configs */}}
+
   # Defines how often the spooler is flushed. After idle_timeout the spooler is
   # Flush even though spool_size is not reached.
   idle_timeout: 5s
-{{- end }}{{/* end range configs */}}
 {{ end }}{{/* end if */}}
 {{- end }}{{/* end range $pods */}}
 ############################# Output ##########################################
