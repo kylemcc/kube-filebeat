@@ -1,7 +1,7 @@
 #!/bin/bash
 
 cnt=0
-while pgrep filebeat
+while pgrep filebeat > /dev/null 2>&1
 do
 	if [ $cnt -gt "0" ]; then
 		sleep 1
