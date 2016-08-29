@@ -1,0 +1,5 @@
+filebeat:
+  prospectors:
+
+output:
+  console:
