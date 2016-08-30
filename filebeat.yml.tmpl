@@ -25,7 +25,7 @@ filebeat:
 {{- if hasField $conf "exclude_files" }}
       exclude_files:
 {{- range $f := $conf.exclude_files }}
-        - {{ $f }}
+        - '{{ $f }}'
 {{- end }}
 {{ else }}
       exclude_files: [".gz$"]
@@ -46,7 +46,7 @@ filebeat:
       # exclude_lines. By default, no lines are dropped.
       exclude_lines:
 {{- range $l := $conf.exclude_lines }}
-        - "{{ $l }}"
+        - '{{ $l }}'
 {{- end }}
 
       fields:
@@ -60,7 +60,7 @@ filebeat:
 {{- if hasField $conf "multiline" }}
 {{- with $conf.multiline }}
       multiline:
-        pattern: {{ .pattern }}
+        pattern: '{{ .pattern }}'
         negate: {{ coalesce .negate false }}
         match: {{ coalesce .match "after" }}
         max_lines: {{ coalesce .max_lines "500" }}
