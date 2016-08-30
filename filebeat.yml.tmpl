@@ -62,9 +62,9 @@ filebeat:
       multiline:
         pattern: {{ .pattern }}
         negate: {{ coalesce .negate false }}
-        match: {{ coalesce .match "" }}
-        max_lines: {{ coalesce .max_lines "" }}
-        timeout: {{ coalesce .timeout "" }}
+        match: {{ coalesce .match "after" }}
+        max_lines: {{ coalesce .max_lines "500" }}
+        timeout: {{ coalesce .timeout "5s" }}
 {{- end }}{{/* end with */}}
 {{- end -}}{{/* end multiline */}}
 {{- end }}{{/* end range configs */}}
