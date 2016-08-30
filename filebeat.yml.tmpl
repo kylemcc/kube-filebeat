@@ -57,6 +57,16 @@ filebeat:
 
       fields_under_root: true
 
+{{- if hasField $conf "multiline" }}
+{{- with $conf.multiline }}
+      multiline:
+        pattern: {{ .pattern }}
+        negate: {{ coalesce .negate false }}
+        match: {{ coalesce .match "" }}
+        max_lines: {{ coalesce .max_lines "" }}
+        timeout: {{ coalesce .timeout "" }}
+{{- end }}{{/* end with */}}
+{{- end -}}{{/* end multiline */}}
 {{- end }}{{/* end range configs */}}
 
   # Defines how often the spooler is flushed. After idle_timeout the spooler is
