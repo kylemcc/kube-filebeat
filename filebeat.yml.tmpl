@@ -68,13 +68,16 @@ filebeat:
         timeout: {{ coalesce .timeout "5s" }}
 {{- end }}{{/* end with */}}
 {{- end -}}{{/* end multiline */}}
+
 {{- end }}{{/* end range configs */}}
+
+{{- end }}{{/* end if */}}
+
+{{- end }}{{/* end range $pods */}}
 
   # Defines how often the spooler is flushed. After idle_timeout the spooler is
   # Flush even though spool_size is not reached.
   idle_timeout: 5s
-{{ end }}{{/* end if */}}
-{{- end }}{{/* end range $pods */}}
 ############################# Output ##########################################
 
 # Configure what outputs to use when sending the data collected by the beat.
