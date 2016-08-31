@@ -1,13 +1,13 @@
 {{ $pods := whereExist .Pods "ObjectMeta.Annotations.kube_filebeat" -}}
 
 filebeat:
+  prospectors:
 {{- range $pod := $pods -}}
 {{ $containerId := trimPrefix (index $pod.Status.ContainerStatuses 0).ContainerID "docker://" -}}
 {{ if exists (printf "/var/lib/docker/containers/%s" $containerId) }}
 {{ $configs := parseJson $pod.ObjectMeta.Annotations.kube_filebeat -}}
 {{ $res := shell (printf "cat /var/lib/docker/image/aufs/layerdb/mounts/%s/mount-id" $containerId) -}}
 {{ $baseDir := printf "/var/lib/docker/aufs/mnt/%s" $res.Stdout }}
-  prospectors:
 {{- range $conf := $configs }}
     -
       # Paths that should be crawled and fetched. Glob based paths.
