@@ -52,6 +52,7 @@ filebeat:
       fields:
         path: {{ $conf.log }}
         pod: {{ $pod.ObjectMeta.Name }}
+        namespace: {{ $pod.ObjectMeta.Namespace }}
 {{- range $key, $value := $conf.fields }}
         {{ $key }}: {{ $value }}
 {{- end }}{{/* end range fields */}}
