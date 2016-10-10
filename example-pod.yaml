@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    kube_filebeat: >
+      [
+          {
+              "log": "/var/log/example-app/output.log",
+              "ignore_older": "24h",
+              "close_older": "24h",
+              "fields": {
+                  "app": "example-app",
+                  "version": "1.2.3"
+              },
+              "multiline": {
+                  "pattern": "^(([[:alpha:]]{3} [0-9]{1,2}, [0-9]{4} [0-9]{1,2}:[0-9]{2}:[0-9]{2})|([0-9]{4}-[0-9]{2}-[0-9]{2}))",
+                  "negate": true,
+                  "match": "after"
+              }
+          },
+          {
+              "log": "/var/log/nginx/access.log",
+              "exclude_lines": [".*Go-http-client/1\\.1.*"],
+              "ignore_older": "24h",
+              "close_older": "24h",
+              "fields": {
+                  "app": "example-app",
+                  "version": "1.2.3",
+                  "type": "access_log"
+              }
+          }
+      ]
+  name: example-app
+spec:
+  containers:
+    - image: example-app:1.2.3
+      name: example-app
+
