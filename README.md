@@ -44,7 +44,7 @@ spec:
 
 ### Configuration
 
-Annotations are used to inform `kube-fealbeat` of files that should be harvested. [For example][5]:
+Annotations are used to inform `kube-filebeat` of files that should be harvested. [For example][5]:
 
 ```yaml
 apiVersion: v1
