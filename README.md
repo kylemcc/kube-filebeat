@@ -87,6 +87,33 @@ spec:
 
 ```
 
+For multi-container pods, specify the container name in each filebeat config. E.g.:
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    kube_filebeat: >
+      [
+          {
+              "container": "example-app",
+              "log": "/var/log/app/logfile",
+              ...
+          },
+          {
+              "container": "nginx",
+              "log": "/var/log/nginx/access.log",
+              ...
+          }
+      ]
+spec:
+  containers:
+    - image: example-app:1.2.3
+      name: example-app
+    - image: nginx:latest
+      name: nginx
+```
+
 [1]: https://github.com/elastic/beats/tree/master/filebeat
 [2]: https://github.com/kylemcc/kube-gen
 [3]: http://kubernetes.io/docs/admin/daemons/
