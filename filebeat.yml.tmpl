@@ -4,8 +4,7 @@ filebeat:
   prospectors:
 {{- range $pod := $pods -}}
 {{ $containerMap := groupBy $pod.Status.ContainerStatuses "Name" }}
-{{- if isValidJson $pod.ObjectMeta.Annotations.kube_filebeat -}}
-{{ $configs := parseJson $pod.ObjectMeta.Annotations.kube_filebeat -}}
+{{ $configs := parseJsonSafe $pod.ObjectMeta.Annotations.kube_filebeat -}}
 {{- range $conf := $configs }}
     {{ $container := coalesce (first (index $containerMap (coalesce $conf.container ""))) (first $pod.Status.ContainerStatuses) -}}
     {{ $containerId := trimPrefix $container.ContainerID "docker://" -}}
@@ -76,7 +75,6 @@ filebeat:
 {{- end }}{{/* end directory exists */}}
 
 {{- end }}{{/* end range configs */}}
-{{- end }}{{/* end if valid json */}}
 
 {{- end }}{{/* end range $pods */}}
 
