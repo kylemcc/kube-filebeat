@@ -1,7 +1,7 @@
 FROM debian:jessie
 
 # install forego, kube-gen, kubectl, and filebeat
-ENV KUBE_GEN_VERSION 0.1.1
+ENV KUBE_GEN_VERSION 0.2.0
 ENV FILEBEAT_VERSION 1.2.3
 ADD https://storage.googleapis.com/kubernetes-release/release/v1.3.4/bin/linux/amd64/kubectl /usr/local/bin/
 ADD https://bin.equinox.io/c/ekMN3bCZFUn/forego-stable-linux-amd64.tgz /tmp
