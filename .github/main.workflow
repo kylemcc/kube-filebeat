@@ -1,6 +1,9 @@
 workflow "Build and Publish Docker Image" {
   on = "push"
-  resolves = ["Push Image"]
+  resolves = [
+    "Push Image",
+    "Tag filter",
+  ]
 }
 
 action "Master Branch Filter" {
@@ -10,7 +13,10 @@ action "Master Branch Filter" {
 
 action "Docker Registry" {
   uses = "actions/docker/login@8cdf801b322af5f369e00d85e9cf3a7122f49108"
-  needs = ["Master Branch Filter"]
+  needs = [
+    "Master Branch Filter",
+    "Tag filter",
+  ]
   secrets = ["DOCKER_USERNAME", "DOCKER_PASSWORD"]
 }
 
@@ -30,4 +36,9 @@ action "Push Image" {
   uses = "actions/docker/cli@8cdf801b322af5f369e00d85e9cf3a7122f49108"
   needs = ["Tag Image"]
   args = "push kylemcc/kube-filebeat"
+}
+
+action "Tag filter" {
+  uses = "actions/bin/filter@46ffca7632504e61db2d4cb16be1e80f333cb859"
+  args = "tag"
 }
