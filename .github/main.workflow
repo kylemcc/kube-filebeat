@@ -5,7 +5,7 @@ workflow "Build and Publish Docker Image" {
 
 action "Master Branch Filter" {
   uses = "actions/bin/filter@ec328c7554cbb19d9277fc671cf01ec7c661cd9a"
-  args = "branch master"
+  args = "branch master || tag"
 }
 
 action "Docker Registry" {
