@@ -23,7 +23,7 @@ action "Build Image" {
 action "Tag Image" {
   uses = "actions/docker/tag@8cdf801b322af5f369e00d85e9cf3a7122f49108"
   needs = ["Build Image"]
-  args = "--envkube-filebeat kylemcc/kube-filebeat"
+  args = "--env kube-filebeat kylemcc/kube-filebeat"
 }
 
 action "Push Image" {
