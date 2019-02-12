@@ -1,6 +1,6 @@
 FROM debian:jessie
 
-LABEL version=0.1.0
+LABEL version="0.1.0"
 
 # install forego, kube-gen, kubectl, and filebeat
 ENV KUBE_GEN_VERSION 0.2.0
