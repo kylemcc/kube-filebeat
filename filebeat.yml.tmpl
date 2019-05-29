@@ -9,7 +9,6 @@ filebeat:
     {{ $container := coalesce (first (index $containerMap (coalesce $conf.container ""))) (first $pod.Status.ContainerStatuses) -}}
     {{ $containerId := trimPrefix $container.ContainerID "docker://" -}}
     {{ if exists (printf "/var/lib/docker/containers/%s" $containerId) }}
-
     {{ $res := shell (printf "cat /var/lib/docker/image/overlay2/layerdb/mounts/%s/mount-id" $containerId) -}}
     {{ $baseDir := printf "/var/lib/docker/overlay2/%s/merged" $res.Stdout }}
 
