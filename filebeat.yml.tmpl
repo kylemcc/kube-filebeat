@@ -9,8 +9,10 @@ filebeat:
     {{ $container := coalesce (first (index $containerMap (coalesce $conf.container ""))) (first $pod.Status.ContainerStatuses) -}}
     {{ $containerId := trimPrefix $container.ContainerID "docker://" -}}
     {{ if exists (printf "/var/lib/docker/containers/%s" $containerId) }}
-    {{ $res := shell (printf "cat /var/lib/docker/image/aufs/layerdb/mounts/%s/mount-id" $containerId) -}}
-    {{ $baseDir := printf "/var/lib/docker/aufs/diff/%s" $res.Stdout }}
+
+    {{ $res := shell (printf "cat /var/lib/docker/image/overlay2/layerdb/mounts/%s/mount-id" $containerId) -}}
+    {{ $baseDir := printf "/var/lib/docker/overlay2/%s/merged" $res.Stdout }}
+
     -
       # Paths that should be crawled and fetched. Glob based paths.
       # To fetch all ".log" files from a specific level of subdirectories
@@ -18,7 +20,19 @@ filebeat:
       # For each file found under this path, a harvester is started.
       # Make sure not file is defined twice as this can lead to unexpected behaviour.
       paths:
+      {{- if exists (printf "/var/lib/docker/containers/%s/config.v2.json" $containerId) }}
+        {{ $containerConfig := parseJsonSafe (shell (printf "cat /var/lib/docker/containers/%s/config.v2.json" $containerId)).Stdout -}}
+        {{- range $volumePath, $volumeConf := $containerConfig.MountPoints }}
+        {{ $logFileData := split $conf.log "/" }}
+        {{ $logFile := last $logFileData }}
+        {{ $logPath := pathJoin "/" (pathJoinSlice (slice $logFileData 0 (add (len $logFileData) -1))) }}
+        {{ if eq $logPath $volumePath }}
+        - {{ pathJoin (printf "/var/lib/docker/volumes/%s/_data" $volumeConf.Name) $logFile }}
+        {{- end }}
+        {{- end }}
+      {{ else }}
         - {{ pathJoin $baseDir $conf.log }}
+      {{- end }}
 
       input_type: log
 
