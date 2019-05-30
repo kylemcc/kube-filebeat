@@ -20,18 +20,14 @@ filebeat:
       # For each file found under this path, a harvester is started.
       # Make sure not file is defined twice as this can lead to unexpected behaviour.
       paths:
-      {{- if exists (printf "/var/lib/docker/containers/%s/config.v2.json" $containerId) }}
-        {{ $containerConfig := parseJsonSafe (shell (printf "cat /var/lib/docker/containers/%s/config.v2.json" $containerId)).Stdout -}}
-        {{- range $volumePath, $volumeConf := $containerConfig.MountPoints }}
-        {{ $logFileData := split $conf.log "/" }}
-        {{ $logFile := last $logFileData }}
-        {{ $logPath := pathJoin "/" (pathJoinSlice (slice $logFileData 0 (add (len $logFileData) -1))) }}
-        {{ if eq $logPath $volumePath }}
-        - {{ pathJoin (printf "/var/lib/docker/volumes/%s/_data" $volumeConf.Name) $logFile }}
-        {{- end }}
-        {{- end }}
-      {{ else }}
-        - {{ pathJoin $baseDir $conf.log }}
+      {{- $containerConfig := parseJsonSafe (shell (printf "cat /var/lib/docker/containers/%s/config.v2.json" $containerId)).Stdout -}}
+      {{- $logFileData := split $conf.log "/" -}}
+      {{- $logFile := last $logFileData -}}
+      {{- $logPath := pathJoin "/" (pathJoinSlice (slice $logFileData 0 (add (len $logFileData) -1))) -}}
+      {{- if hasField $containerConfig.MountPoints $logPath }}
+         - {{ pathJoin (printf "/var/lib/docker/volumes/%s/_data" (index $containerConfig.MountPoints $logPath).Name) $logFile -}}
+      {{- else }}
+         - {{ pathJoin $baseDir $conf.log }}
       {{- end }}
 
       input_type: log
